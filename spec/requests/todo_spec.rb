@@ -64,7 +64,7 @@ RSpec.describe 'TODO Api', type: :request do
       end
 
       context 'when the request is invalid' do
-        before { post '/todos', params: title: 'Invalid Object' }
+        before { post '/todos', params: { title: 'Invalid Object' } }
 
         it 'returns status code 422' do
           expects(response).to have_http_status(422)

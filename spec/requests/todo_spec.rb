@@ -10,7 +10,7 @@ RSpec.describe 'TODO Api', type: :request do
     #Make Http Request before each example
     before { get '/todos' }
     it 'returns todos' do
-      expect(json).not_to_be_empty
+      expect(json).not_to be_empty
       expect(json.size).to eq(10)
     end
 
@@ -24,8 +24,7 @@ RSpec.describe 'TODO Api', type: :request do
 
     context 'when the record id exists' do
       it 'returns the todo' do
-        expect(json).not_to_be_empty
-        expect(json.size).to eq(1)
+        expect(json).not_to be_empty
         expect(json['id']).to eq(todo_id)
       end
 
@@ -42,7 +41,7 @@ RSpec.describe 'TODO Api', type: :request do
       end
 
       it 'returns a not found message' do
-        expect(response.body).to match(/Todo Not Found/)
+        expect(JSON.parse(response.body)).to match("message" => "Couldn't find Todo with 'id'=#{todo_id}")
       end
     end
   end
@@ -55,24 +54,24 @@ RSpec.describe 'TODO Api', type: :request do
     context 'when the request is valid' do
       before { post '/todos', params: valid_attributes }
 
-      it 'creates a todo' do
-        expects(json['title']).to eq('/Test Title')
+      it 'include location in header' do
+        expect(response.headers['location']).not_to be_empty
       end
 
       it 'returns a status code 201' do
-        expects(response).to have_http_status(201)
+        expect(response).to have_http_status(201)
+      end
+    end
+
+    context 'when the request is invalid' do
+      before { post '/todos', params: { title: 'Invalid Object' } }
+
+      it 'returns status code 422' do
+        expect(response).to have_http_status(422)
       end
 
-      context 'when the request is invalid' do
-        before { post '/todos', params: { title: 'Invalid Object' } }
-
-        it 'returns status code 422' do
-          expects(response).to have_http_status(422)
-        end
-
-        it 'returns failure message' do
-          expects(response.body).to match(/Validation failed:  created_by can not be blank/)
-        end
+      it 'returns failure message' do
+        expect(JSON.parse(response.body)).to match("message" => "Validation failed: Created by can't be blank")
       end
     end
   end
@@ -96,7 +95,7 @@ RSpec.describe 'TODO Api', type: :request do
 
   #Test suite FOR DELETE /todo/:id
   describe 'DELETE /todo/:id' do
-    before { delete "/todos/#{id}" }
+    before { delete "/todos/#{todo_id}" }
     it 'deletes the record ' do
       expect(response.body).to be_empty
     end

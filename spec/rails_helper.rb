@@ -52,11 +52,11 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
   config.before(:suite) do
-    DataBaseCleaner.clean_with(:truncation)
-    DataBaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+    DatabaseCleaner.strategy = :transaction
   end
   config.around(:each) do |example|
-    DataBaseCleaner.cleaning do
+    DatabaseCleaner.cleaning do
       example.run
     end
   end
